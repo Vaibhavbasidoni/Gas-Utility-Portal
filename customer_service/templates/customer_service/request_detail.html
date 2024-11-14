@@ -1,0 +1,157 @@
+{% extends "customer_service/base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <!-- Main Request Details Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Service Request #{{ service_request.id }}</h3>
+            </div>
+            <div class="card-body">
+                <!-- Customer Information -->
+                <div class="section mb-4">
+                    <h4 class="text-muted mb-3">Customer Information</h4>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Customer Name:</strong></div>
+                        <div class="col-md-8">{{ service_request.customer_name }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Email:</strong></div>
+                        <div class="col-md-8">{{ service_request.customer_email }}</div>
+                    </div>
+                </div>
+
+                <!-- Request Details -->
+                <div class="section mb-4">
+                    <h4 class="text-muted mb-3">Request Details</h4>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Request Type:</strong></div>
+                        <div class="col-md-8">
+                            <span class="badge bg-info">
+                                {{ service_request.get_request_type_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Status:</strong></div>
+                        <div class="col-md-8">
+                            {% if service_request.status == 'PENDING' %}
+                                <span class="badge bg-warning">{{ service_request.get_status_display }}</span>
+                            {% elif service_request.status == 'IN_PROGRESS' %}
+                                <span class="badge bg-primary">{{ service_request.get_status_display }}</span>
+                            {% elif service_request.status == 'RESOLVED' %}
+                                <span class="badge bg-success">{{ service_request.get_status_display }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ service_request.get_status_display }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Description:</strong></div>
+                        <div class="col-md-8">
+                            <p class="text-justify">{{ service_request.description }}</p>
+                        </div>
+                    </div>
+                    {% if service_request.attachment %}
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Attachment:</strong></div>
+                        <div class="col-md-8">
+                            <a href="{{ service_request.attachment.url }}" 
+                               class="btn btn-sm btn-outline-secondary" 
+                               target="_blank">
+                                <i class="fas fa-download"></i> View Attachment
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Timeline Information -->
+                <div class="section mb-4">
+                    <h4 class="text-muted mb-3">Timeline</h4>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Submitted:</strong></div>
+                        <div class="col-md-8">
+                            {{ service_request.created_at|date:"F d, Y h:i A" }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Last Updated:</strong></div>
+                        <div class="col-md-8">
+                            {{ service_request.updated_at|date:"F d, Y h:i A" }}
+                        </div>
+                    </div>
+                    {% if service_request.resolved_at %}
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Resolved:</strong></div>
+                        <div class="col-md-8">
+                            {{ service_request.resolved_at|date:"F d, Y h:i A" }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Comments Section -->
+        {% if comments %}
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4 class="mb-0">Staff Responses</h4>
+            </div>
+            <div class="card-body">
+                {% for comment in comments %}
+                <div class="comment mb-3 {% if not forloop.last %}border-bottom pb-3{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">{{ comment.staff_name }}</h5>
+                        <small class="text-muted">
+                            {{ comment.created_at|date:"F d, Y h:i A" }}
+                        </small>
+                    </div>
+                    <p class="mb-0">{{ comment.comment }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'request_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+            {% if service_request.status != 'RESOLVED' and service_request.status != 'CLOSED' %}
+            <a href="{% url 'create_request' %}" class="btn btn-primary">
+                Submit Another Request
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add Font Awesome for icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+<!-- Add some custom styles -->
+<style>
+    .section {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1rem;
+    }
+    .section:last-child {
+        border-bottom: none;
+    }
+    .badge {
+        padding: 0.5em 1em;
+    }
+    .text-justify {
+        text-align: justify;
+    }
+    .comment {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+    }
+</style>
+{% endblock %}

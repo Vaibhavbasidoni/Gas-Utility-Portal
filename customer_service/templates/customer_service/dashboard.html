@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Welcome, {{ user.username }}</h2>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Quick Actions</h5>
+                <a href="{% url 'customer_service:create_request' %}" class="btn btn-primary">Submit New Request</a>
+                <a href="{% url 'customer_service:request_list' %}" class="btn btn-secondary">View All Requests</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h3>Recent Service Requests</h3>
+        {% if requests %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Request Type</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in requests|slice:":5" %}
+                            <tr>
+                                <td>{{ request.get_request_type_display }}</td>
+                                <td><span class="badge bg-{{ request.status|lower }}">{{ request.get_status_display }}</span></td>
+                                <td>{{ request.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'customer_service:request_detail' request.pk %}" class="btn btn-sm btn-info">View Details</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No service requests found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
